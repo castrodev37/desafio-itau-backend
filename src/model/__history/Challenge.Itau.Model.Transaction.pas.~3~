@@ -1,0 +1,38 @@
+unit Challenge.Itau.Model.Transaction;
+
+interface
+
+uses
+  System.SysUtils;
+
+type
+  TChallengeItauModelTransaction = class
+  private
+    FValue: Currency;
+    FDate: TDateTime;
+    procedure SetDate(const Value: TDateTime);
+    procedure SetValue(const Value: Currency);
+  public
+    property Value: Currency read FValue write SetValue;
+    property Date: TDateTime read FDate write SetDate;
+  end;
+
+implementation
+
+{ TChallengeItauModelTransaction }
+
+procedure TChallengeItauModelTransaction.SetDate(const Value: TDateTime);
+begin
+  if Value = 0 then
+    raise Exception.Create('Data inválida para uma transação');
+  FDate := Value;
+end;
+
+procedure TChallengeItauModelTransaction.SetValue(const Value: Currency);
+begin
+  if Value = 0 then
+  raise Exception.Create('Valor inválido para uma transação');
+  FValue := Value;
+end;
+
+end.
