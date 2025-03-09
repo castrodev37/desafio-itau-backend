@@ -5,6 +5,8 @@ interface
 uses
   System.SysUtils,
   System.JSON,
+  System.DateUtils,
+  System.Generics.Collections,
   Challenge.Itau.Model.Transaction,
   Challenge.Itau.Model.TransactionList,
   Challenge.Itau.Model.Exceptions;
@@ -20,6 +22,8 @@ type
   public
     procedure Insert(ATransaction: TJSONObject);
     procedure Delete;
+
+    function Statistics: TJSONObject;
   end;
 
 const
@@ -74,6 +78,52 @@ begin
   Result := EmptyStr;
   if AValue.TryGetValue(AKey, LJSONValue) then
     Result := LJSONValue.ToString;
+end;
+
+function TChallengeItauServiceTransaction.Statistics: TJSONObject;
+var
+  LTransaction: TChallengeItauModelTransaction;
+  LMinute: Word;
+  LCount: Integer;
+  LSum, LMin, LMax: Currency;
+  LAvg: Double;
+begin
+  Result := TJSONObject.Create;
+
+  LMinute := MinuteOf(Now);
+  LCount := 0;
+  LSum := 0;
+  LAvg := 0;
+  LMin := MaxCurrency;
+  LMax := -MaxCurrency;
+
+  for LTransaction in TChallengeItauModelTransactionList.List do
+  begin
+    if not MinuteOf(LTransaction.GetDate) <= LMinute then
+      Continue;
+    Inc(LCount);
+    LSum := LSum + LTransaction.Value;
+    if LTransaction.Value < LMin then
+      LMin := LTransaction.Value;
+    if LTransaction.Value > LMax then
+      LMax := LTransaction.Value;
+  end;
+
+  if LCount > 0 then
+    LAvg := LSum / LCount
+  else
+  begin
+    LAvg := 0;
+    LMin := 0;
+    LMax := 0;
+  end;
+
+  Result
+    .AddPair('count', TJSONNumber.Create(LCount))
+    .AddPair('sum', TJSONNumber.Create(LSum))
+    .AddPair('min', TJSONNumber.Create(LMin))
+    .AddPair('max', TJSONNumber.Create(LMax))
+    .AddPair('avg', TJSONNumber.Create(LAvg));
 end;
 
 function TChallengeItauServiceTransaction.ParseJSONToDouble(AKey: string; AValue: TJSONObject): Double;

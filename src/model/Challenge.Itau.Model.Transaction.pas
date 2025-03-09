@@ -5,27 +5,19 @@ interface
 uses
   System.SysUtils,
   System.DateUtils,
-//  System.Classes,
-//  System.SyncObjs,
   Challenge.Itau.Model.Exceptions;
 
 type
   TChallengeItauModelTransaction = class
   private
-//    class var FInstance: TChallengeItauModelTransaction;
-//    class var FCriticalSection: TCriticalSection; // Para thread safety
     FValue: Currency;
     FDate: TDateTime;
-//    constructor Create;
 
     procedure SetValue(const Value: Currency);
     procedure ValidateDate(const ADate: TDateTime);
     function GetValue: Currency;
     function ParseStringToDate(AValueDate: string): TDateTime;
   public
-//    class function GetTransactionModel: TChallengeItauModelTransaction;
-//    class procedure DestroyTransactionModel;
-
     function GetDate: TDateTime;
     procedure SetDate(const AValue: string);
     property Value: Currency read GetValue write SetValue;
@@ -34,26 +26,6 @@ type
 implementation
 
 { TChallengeItauModelTransaction }
-
-//class procedure TChallengeItauModelTransaction.DestroyTransactionModel;
-//begin
-//  FCriticalSection.Enter;
-//  try
-//    if Assigned(FInstance) then
-//    begin
-//      FInstance.Free;
-//      FInstance := nil;
-//    end;
-//  finally
-//    FCriticalSection.Leave;
-//  end;
-//
-//  if Assigned(FCriticalSection) then
-//  begin
-//    FCriticalSection.Free;
-//    FCriticalSection := nil;
-//  end;
-//end;
 
 function TChallengeItauModelTransaction.ParseStringToDate(AValueDate: string): TDateTime;
 var
@@ -74,21 +46,6 @@ function TChallengeItauModelTransaction.GetDate: TDateTime;
 begin
   Result := FDate;
 end;
-
-//class function TChallengeItauModelTransaction.GetTransactionModel: TChallengeItauModelTransaction;
-//begin
-//  if FCriticalSection = nil then
-//    FCriticalSection := TCriticalSection.Create;
-//
-//  FCriticalSection.Enter; // Bloqueia para garantir acesso exclusivo
-//  try
-//    if not Assigned(FInstance) then
-//      FInstance := TChallengeItauModelTransaction.Create;
-//    Result := FInstance;
-//  finally
-//    FCriticalSection.Leave; // Libera o bloqueio
-//  end;
-//end;
 
 function TChallengeItauModelTransaction.GetValue: Currency;
 begin
@@ -122,10 +79,5 @@ begin
   if LDate >= LCurrentDate then
     raise EValidationError.Create('Transação deve ser anterior à data atual');
 end;
-
-//initialization
-//
-//finalization
-//  TChallengeItauModelTransaction.DestroyTransactionModel;
 
 end.
