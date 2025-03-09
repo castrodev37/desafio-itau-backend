@@ -1,0 +1,10 @@
+unit Challenge.Itau.Model.Exceptions;
+
+interface
+
+type
+  EValidationError = class(Exception);
+
+implementation
+
+end.

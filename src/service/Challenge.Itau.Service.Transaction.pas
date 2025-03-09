@@ -5,7 +5,9 @@ interface
 uses
   System.SysUtils,
   System.JSON,
-  Challenge.Itau.Model.Transaction;
+  Challenge.Itau.Model.Transaction,
+  Challenge.Itau.Model.TransactionList,
+  Challenge.Itau.Model.Exceptions;
 
 type
   TChallengeItauServiceTransaction = class
@@ -13,10 +15,11 @@ type
     function ParseJSONToDouble(AKey: string; AValue: TJSONObject): Double;
     function ParseJSONToString(AKey: string; AValue: TJSONObject): string;
 
-    procedure InsertTransaction(ATransaction: TJSONObject; AStatusJSONObject: TJSONObject);
+    procedure InsertTransaction(ATransaction: TJSONObject);
     procedure JSONSchemaValidate(AValue: TJSONObject);
   public
-    function Insert(ATransaction: TJSONObject): TJSONObject;
+    procedure Insert(ATransaction: TJSONObject);
+    procedure Delete;
   end;
 
 const
@@ -28,37 +31,28 @@ implementation
 
 { TChallengeItauServiceTransaction }
 
-function TChallengeItauServiceTransaction.Insert(ATransaction: TJSONObject): TJSONObject;
+procedure TChallengeItauServiceTransaction.Delete;
 begin
-  Result := TJSONObject.Create;
-
-  if not Assigned(ATransaction) then
-  begin
-    Result.AddPair('status', 'Invalid JSON');
-    Exit;
-  end;
-
-  JSONSchemaValidate(ATransaction);
-  try
-    InsertTransaction(ATransaction, Result);
-  except
-    raise;
-  end;
+  TChallengeItauModelTransactionList.List.Clear;
 end;
 
-procedure TChallengeItauServiceTransaction.InsertTransaction(ATransaction: TJSONObject; AStatusJSONObject: TJSONObject);
-var
-  LTransactionModel: TChallengeItauModelTransaction;
+procedure TChallengeItauServiceTransaction.Insert(ATransaction: TJSONObject);
 begin
-  LTransactionModel := TChallengeItauModelTransaction.GetTransactionModel;
-  try
-    LTransactionModel.Value := ParseJSONToDouble(cVALOR, ATransaction);
-    LTransactionModel.SetDate(ParseJSONToString(cDATA_HORA, ATransaction));
-    AStatusJSONObject.AddPair('status', 'created');
-  except
-    on E: Exception do
-      raise;
-  end;
+  if not Assigned(ATransaction) then
+    raise EJSONValidationError.Create('JSON inválido');
+
+  JSONSchemaValidate(ATransaction);
+  InsertTransaction(ATransaction);
+end;
+
+procedure TChallengeItauServiceTransaction.InsertTransaction(ATransaction: TJSONObject);
+var
+  LTransaction: TChallengeItauModelTransaction;
+begin
+  LTransaction := TChallengeItauModelTransaction.Create;
+  LTransaction.Value := ParseJSONToDouble(cVALOR, ATransaction);
+  LTransaction.SetDate(ParseJSONToString(cDATA_HORA, ATransaction));
+  TChallengeItauModelTransactionList.List.Add(LTransaction);
 end;
 
 procedure TChallengeItauServiceTransaction.JSONSchemaValidate(AValue: TJSONObject);
@@ -67,15 +61,10 @@ var
   I: Integer;
 begin
   LEnumerator := AValue.GetEnumerator;
-  try
-    while LEnumerator.MoveNext do
+  while LEnumerator.MoveNext do
     for I := Low(cBODY_KEYS) to High(cBODY_KEYS) do
       if (AValue.GetValue(cBODY_KEYS[I]) = nil) then
-        raise Exception.Create('Body formatting error');
-  except
-    on E: Exception do
-      raise;
-  end;
+        raise EValidationError.Create('Body formatting error: ' + cBODY_KEYS[I] + ' é obrigatório');
 end;
 
 function TChallengeItauServiceTransaction.ParseJSONToString(AKey: string; AValue: TJSONObject): string;

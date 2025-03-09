@@ -1,0 +1,53 @@
+program Challenge_Itau;
+
+{$APPTYPE CONSOLE}
+
+{$R *.res}
+
+uses
+  System.SysUtils,
+  Horse,
+  Horse.Jhonson,
+  Horse.CORS,
+  Challenge.Itau.Service.Transaction in 'src\service\Challenge.Itau.Service.Transaction.pas',
+  Challenge.Itau.Model.Transaction in 'src\model\Challenge.Itau.Model.Transaction.pas',
+  Challenge.Itau.Controller.Transaction in 'src\controller\Challenge.Itau.Controller.Transaction.pas';
+
+begin
+  ReportMemoryLeaksOnShutdown := True;
+  try
+//     HorseCORS
+//       .AllowedOrigin('*')
+//       .AllowedCredentials(True)
+//       .AllowedHeaders('*')
+//       .AllowedMethods('*')
+//       .ExposedHeaders('*');
+//    THorse.Use(Challenge.Itau.Controller.Transaction.CustomCORS);
+    THorse
+      .Use(Jhonson())
+      .Use(CORS);
+
+    Challenge.Itau.Controller.Transaction.RegisterRoutes;
+//    THorse.Get('/pingget',
+//      procedure(Req: THorseRequest; Res: THorseResponse)
+//      begin
+//        Res.Send('pong');
+//      end);
+//
+//    THorse.Post('/pingpost',
+//      procedure(Req: THorseRequest; Res: THorseResponse)
+//      begin
+//        Res.Send('pong');
+//      end);
+  except
+    on E: Exception do
+    begin
+      Writeln('Erro: ', E.Message);
+    end;
+  end;
+  THorse.Listen(9000,
+    procedure
+    begin
+      Writeln('Server is runnig on http://localhost:9000');
+    end);
+end.

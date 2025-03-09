@@ -1,0 +1,36 @@
+unit Challenge.Itau.Model.TransactionList;
+
+interface
+
+uses
+  System.SysUtils,
+  System.DateUtils,
+  System.Generics.Collections,
+  Challenge.Itau.Model.Transaction;
+
+type
+  TChallengeItauModelTransactionList = class
+  private
+    FList: TObjectList<TChallengeItauModelTransaction>;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property List: TObjectList<TChallengeItauModelTransaction> read FList write FList;
+  end;
+
+implementation
+
+{ TChallengeItauModelTransactionList }
+
+constructor TChallengeItauModelTransactionList.Create;
+begin
+  FList := TObjectList<TChallengeItauModelTransaction>.Create;
+end;
+
+destructor TChallengeItauModelTransactionList.Destroy;
+begin
+  FList.Free;
+  inherited;
+end;
+
+end.
