@@ -19,21 +19,27 @@ begin
   begin
     Writeln('Erro de validação: ', E.Message);
     Res
-      .Send(Format('{"status": "error", "message": "%s"}', [E.Message])
+      .Send<TJSONObject>(TJSONObject.Create
+        .AddPair('status', 'error')
+        .AddPair('message', Format('%s', [E.Message]))
       ).Status(THTTPStatus.UnprocessableEntity)
   end
   else if E is EJSONValidationError then
   begin
     Writeln('Erro de validação do JSON: ', E.Message);
     Res
-      .Send(Format('{"status": "error", "message": "%s"}', [E.Message])
+      .Send<TJSONObject>(TJSONObject.Create
+        .AddPair('status', 'error')
+        .AddPair('message', Format('%s', [E.Message]))
       ).Status(THTTPStatus.BadRequest)
   end
   else
   begin
     Writeln('Erro interno: ', E.Message);
     Res
-      .Send(Format('{"status": "error", "message": "%s"}', [E.Message])
+      .Send<TJSONObject>(TJSONObject.Create
+        .AddPair('status', 'error')
+        .AddPair('message', Format('%s', [E.Message]))
       ).Status(THTTPStatus.InternalServerError);
   end;
 end;

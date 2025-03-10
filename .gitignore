@@ -1,0 +1,8 @@
+**/__history/*
+*.dcu
+*.rsm
+*.dproj.local
+Win32/Debug/*
+Win64/Debug/*
+*.identcache
+__pycache__/
