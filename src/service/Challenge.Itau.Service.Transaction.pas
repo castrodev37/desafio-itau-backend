@@ -83,23 +83,23 @@ end;
 function TChallengeItauServiceTransaction.Statistics: TJSONObject;
 var
   LTransaction: TChallengeItauModelTransaction;
-  LMinute: Word;
-  LCount: Integer;
+  LCount, LMinute: Integer;
+  LCurrentDate: TDateTime;
   LSum, LMin, LMax: Currency;
   LAvg: Double;
 begin
   Result := TJSONObject.Create;
+  LCurrentDate := Now;
 
-  LMinute := MinuteOf(Now);
   LCount := 0;
   LSum := 0;
-  LAvg := 0;
   LMin := MaxCurrency;
   LMax := -MaxCurrency;
 
   for LTransaction in TChallengeItauModelTransactionList.List do
   begin
-    if not MinuteOf(LTransaction.GetDate) <= LMinute then
+    LMinute := SecondsBetween(LCurrentDate, LTransaction.GetDate);
+    if not ((LMinute >= 0) and (LMinute <= 60)) then
       Continue;
     Inc(LCount);
     LSum := LSum + LTransaction.Value;
@@ -121,9 +121,9 @@ begin
   Result
     .AddPair('count', TJSONNumber.Create(LCount))
     .AddPair('sum', TJSONNumber.Create(LSum))
+    .AddPair('avg', TJSONNumber.Create(LAvg))
     .AddPair('min', TJSONNumber.Create(LMin))
-    .AddPair('max', TJSONNumber.Create(LMax))
-    .AddPair('avg', TJSONNumber.Create(LAvg));
+    .AddPair('max', TJSONNumber.Create(LMax));
 end;
 
 function TChallengeItauServiceTransaction.ParseJSONToDouble(AKey: string; AValue: TJSONObject): Double;

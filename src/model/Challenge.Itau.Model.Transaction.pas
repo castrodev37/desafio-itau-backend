@@ -76,7 +76,7 @@ var
 begin
   LDate := DateOf(ADate);
   LCurrentDate := DateOf(Now);
-  if LDate >= LCurrentDate then
+  if LDate > LCurrentDate then
     raise EValidationError.Create('Transação deve ser anterior à data atual');
 end;
 

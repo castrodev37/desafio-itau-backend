@@ -13,6 +13,31 @@ procedure RegisterRoutes;
 
 implementation
 
+procedure HandleException(const Req: THorseRequest; const Res: THorseResponse; const E: Exception);
+begin
+  if E is EValidationError then
+  begin
+    Writeln('Erro de validação: ', E.Message);
+    Res
+      .Send(Format('{"status": "error", "message": "%s"}', [E.Message])
+      ).Status(THTTPStatus.UnprocessableEntity)
+  end
+  else if E is EJSONValidationError then
+  begin
+    Writeln('Erro de validação do JSON: ', E.Message);
+    Res
+      .Send(Format('{"status": "error", "message": "%s"}', [E.Message])
+      ).Status(THTTPStatus.BadRequest)
+  end
+  else
+  begin
+    Writeln('Erro interno: ', E.Message);
+    Res
+      .Send(Format('{"status": "error", "message": "%s"}', [E.Message])
+      ).Status(THTTPStatus.InternalServerError);
+  end;
+end;
+
 procedure InsertTransaction(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   LService: TChallengeItauServiceTransaction;
@@ -23,29 +48,8 @@ begin
       LService.Insert(Req.Body<TJSONObject>);
       Res.Status(THTTPSTatus.Created);
     except
-      on E: EValidationError do
-      begin
-        Writeln('Erro de validação: ', E.Message);
-        Res
-          .Send(Format('{"status": "error", "message": "%s"}', [E.Message])
-          ).Status(THTTPStatus.UnprocessableEntity);
-      end;
-      on E: EJSONValidationError do
-      begin
-        Writeln('Erro de validação do JSON: ', E.Message);
-        Res
-          .Send(Format('{"status": "error", "message": "%s"}', [E.Message])
-          ).Status(THTTPStatus.BadRequest);
-      end;
       on E: Exception do
-      begin
-        Writeln('Erro interno: ', E.Message);
-        Res.Send<TJSONObject>(
-          TJSONObject.Create
-            .AddPair('status', 'error')
-            .AddPair('message', E.Message)
-        ).Status(THTTPStatus.InternalServerError);
-      end;
+        HandleException(Req, Res, E);
     end;
   finally
     LService.Free;
@@ -62,33 +66,8 @@ begin
       LService.Delete;
       Res.Status(THTTPSTatus.OK);
     except
-      on E: EValidationError do
-      begin
-        Writeln('Erro de validação: ', E.Message);
-        Res.Send<TJSONObject>(
-          TJSONObject.Create
-            .AddPair('status', 'error')
-            .AddPair('message', E.Message)
-        ).Status(THTTPStatus.UnprocessableEntity);
-      end;
-      on E: EJSONValidationError do
-      begin
-        Writeln('Erro de validação do JSON: ', E.Message);
-        Res.Send<TJSONObject>(
-          TJSONObject.Create
-            .AddPair('status', 'error')
-            .AddPair('message', E.Message)
-        ).Status(THTTPStatus.BadRequest);
-      end;
       on E: Exception do
-      begin
-        Writeln('Erro interno: ', E.Message);
-        Res.Send<TJSONObject>(
-          TJSONObject.Create
-            .AddPair('status', 'error')
-            .AddPair('message', E.Message)
-        ).Status(THTTPStatus.InternalServerError);
-      end;
+        HandleException(Req, Res, E);
     end;
   finally
     LService.Free;
@@ -106,33 +85,8 @@ begin
         .Send<TJSONObject>(LService.Statistics)
         .Status(THTTPSTatus.OK);
     except
-      on E: EValidationError do
-      begin
-        Writeln('Erro de validação: ', E.Message);
-        Res.Send<TJSONObject>(
-          TJSONObject.Create
-            .AddPair('status', 'error')
-            .AddPair('message', E.Message)
-        ).Status(THTTPStatus.UnprocessableEntity);
-      end;
-      on E: EJSONValidationError do
-      begin
-        Writeln('Erro de validação do JSON: ', E.Message);
-        Res.Send<TJSONObject>(
-          TJSONObject.Create
-            .AddPair('status', 'error')
-            .AddPair('message', E.Message)
-        ).Status(THTTPStatus.BadRequest);
-      end;
       on E: Exception do
-      begin
-        Writeln('Erro interno: ', E.Message);
-        Res.Send<TJSONObject>(
-          TJSONObject.Create
-            .AddPair('status', 'error')
-            .AddPair('message', E.Message)
-        ).Status(THTTPStatus.InternalServerError);
-      end;
+        HandleException(Req, Res, E);
     end;
   finally
     LService.Free;
