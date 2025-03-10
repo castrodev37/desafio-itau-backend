@@ -148,14 +148,3 @@ Documentação da API: Você consegue documentar sua API? Existem ferramentas e 
 Documentação do Sistema: Sua aplicação provavelmente precisa ser construída antes de ser executada. Você consegue documentar como outra pessoa que pegou sua aplicação pela primeira vez pode construir e executar sua aplicação?
 
 Configurações: Você consegue deixar sua aplicação configurável em relação a quantidade de segundos para calcular as estatísticas? Por exemplo: o padrão é 60 segundos, mas e se o usuário quiser 120 segundos?
-
-**Principais Alterações:**
-
-*   **Títulos:** Usei `#` para títulos principais, `##` para subtítulos e `###` para subtítulos de nível inferior, melhorando a estrutura do documento.
-*   **Listas:** Usei `*` para listas não ordenadas, garantindo formatação consistente.
-*   **Ênfase:** Usei `**` para negrito em palavras-chave importantes.
-*   **Código:** Usei crases (`` ` ``) para formatar comandos e trechos de código.
-*   **Blocos de Código:** Usei ``` para formatar blocos de código JSON, tornando-os mais legíveis.
-*   **Tabelas:** Criei uma tabela para a descrição dos campos JSON, melhorando a organização.
-*   **Links:** Transformei "Spring Starter" em um link para o Spring Initializr.
-*   **Consistência:** Garanti consistência no uso de maiúsculas/minúsculas e na formatação geral.
